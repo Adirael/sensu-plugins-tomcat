@@ -1,35 +1,26 @@
 language: ruby
+
 cache:
 - bundler
+
 install:
 - bundle install
 rvm:
-- 2.0
-- 2.1
-- 2.2
-- 2.3.0
 - 2.4.1
-notifications:
-  email:
-    recipients:
-    - sensu-plugin@sensu-plugins.io
-    on_success: change
-    on_failure: always
+
 script:
 - bundle exec rake default
 - gem build sensu-plugins-tomcat.gemspec
 - gem install sensu-plugins-tomcat-*.gem
+
+before_deploy:
+  - git clone https://github.com/sensu/sensu-go-bonsai-asset.git --branch feature/ruby-plugin-assets bonsai
+
 deploy:
-  provider: rubygems
-  api_key:
-    secure: bfBTgEWg20B59GqEaV2ekr1Nv/9Bhd9iMb2KX0vuDXlZOTthnkKuDMhRB/nCzEsK59LHlKXh21UURNNxdD78I89/gNax80XzyKKJG+qSMhZXIYsAOKm0WDUPAIq9Jd0krZtcaHf3v7xv1vqGVSnxDhzh7pt1JLbVtTJncLBObH0dSnYDInG9K5ZnQZ3Q66pgOZRYnbE1r05nsqh+nP/4Zh6gW7eVlb9cpnkgzgMcK+r5sUgyTcas3DQTLDiPoplom1UOYFgrWf9MRF89QQsbqulMZK4KtQtRpPpkibLQdojsn4NTO92Ztm+PC5+2BJ+p7okgSaREm5xMTkQdFkfWHQAFJwVtkTGbUbXPdoPvDndELms6jtlddgEQvWMIjXz+K4/m3gYIUGzWiI7qcyFdl0FdG0cHa16A3ShgmXY4LDHM5ErpOw1D5mMxx3YdT+QKbIC0IMZjl2botTdBT1zNJT5lTtE5nb/cCX1y87xM3fM0C/+lll/bDw2Sc3p81Qa/sS0bJzArGlpWcSiFJp6Cio+RZAPjAmi/Ns9YQ+Svzn9ubZ/OQNoDSEBvaPgUff1ve7/AGE+jUCZwIExVvA7VdPNJTxjm3v77kDtqiEGUudY7XH8IC32+RzDkeVDhZXL8k9Tumi9h+8pH9CSPNUr+EK7ovAOHvyqWQBVbswbUiUI=
-  gem: sensu-plugins-tomcat
-  on:
-    tags: true
-    all_branches: true
-    rvm: 2.0
-    rvm: 2.1
-    rvm: 2.2
-    rvm: 2.3.0
-    rvm: 2.4.1
-    repo: sensu-plugins/sensu-plugins-tomcat
+  - provider: script
+    script: bonsai/ruby-runtime/travis-build-ruby-plugin-assets.sh sensu-plugins-tomcat
+    skip_cleanup: true
+    on:
+      tags: true
+      all_branches: true
+      rvm: 2.4.1
